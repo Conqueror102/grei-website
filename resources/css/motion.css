@@ -1,0 +1,92 @@
+/* Soft site motion: the same blur-and-rise reveal the ridgeline footer uses,
+   applied across the page. Hidden states only apply once JS has added .gr-motion,
+   so the site still reads with JavaScript off. */
+:root {
+  --gr-ease: cubic-bezier(.2, .7, .1, 1);
+}
+
+/* Headings: word by word, resolving from a stepped blur (the "pixel" feel). */
+.gr-motion .gr-words .gr-w {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.32em);
+  filter: blur(9px);
+  transition:
+    opacity .9s var(--gr-ease),
+    transform 1s var(--gr-ease),
+    filter .8s steps(6, end);
+  transition-delay: calc(var(--d, 0) * 1ms);
+  will-change: opacity, transform, filter;
+}
+.gr-motion .gr-words.gr-in .gr-w { opacity: 1; transform: none; filter: none; }
+
+/* Blocks: paragraphs, buttons, cards, panels slide up softly. */
+.gr-motion .gr-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(4px);
+  transition:
+    opacity .9s var(--gr-ease),
+    transform 1.05s var(--gr-ease),
+    filter .9s ease;
+  transition-delay: calc(var(--d, 0) * 1ms);
+}
+.gr-motion .gr-reveal.gr-in { opacity: 1; transform: none; filter: none; }
+
+/* Large photos: fade in and settle from a slight zoom. */
+.gr-motion .gr-settle { overflow: hidden; }
+.gr-motion .gr-settle > img {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 1.2s var(--gr-ease), transform 1.8s var(--gr-ease);
+}
+.gr-motion .gr-settle.gr-in > img { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gr-motion .gr-words .gr-w,
+  .gr-motion .gr-reveal,
+  .gr-motion .gr-settle > img {
+    opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important;
+  }
+}
+
+/* Liquid-glass header: stays pinned, frosted and slightly tinted, with a
+   bright top highlight and a soft sheen so whatever scrolls under it shows through. */
+.gr-glass {
+  position: sticky;
+  isolation: isolate;
+}
+/* The glass lives on a pseudo-layer so the header's dropdowns can blur the page too */
+.gr-glass::after {
+  content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.52) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(185%) contrast(.96);
+  backdrop-filter: blur(22px) saturate(185%) contrast(.96);
+  border-bottom: 1px solid rgba(255,255,255,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(17,17,17,.05);
+  transition: background .4s var(--gr-ease), box-shadow .4s var(--gr-ease);
+}
+/* Specular sheen across the glass */
+.gr-glass::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(120% 140% at 12% -40%, rgba(255,255,255,.75), transparent 55%),
+    radial-gradient(90% 120% at 92% 140%, rgba(255,255,255,.35), transparent 60%);
+  mix-blend-mode: soft-light;
+}
+/* Once the page scrolls, the glass lifts a little off the content */
+.gr-glass.gr-scrolled::after {
+  background: linear-gradient(180deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.42) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.35), 0 10px 30px -12px rgba(17,17,17,.18);
+}
+.gr-glass-menu {
+  background: rgba(255,255,255,.95);
+  -webkit-backdrop-filter: blur(24px) saturate(185%);
+  backdrop-filter: blur(24px) saturate(185%);
+  border: 1px solid rgba(255,255,255,.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 16px 40px -10px rgba(0,0,0,.18) !important;
+  border-radius: 3px;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gr-glass::after, .gr-glass.gr-scrolled::after, .gr-glass-menu { background: rgba(255,255,255,.96); }
+}
